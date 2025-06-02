@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"context"
 	"emotra-backend/domain/diary"
 	"emotra-backend/infra/db"
 
@@ -9,7 +10,7 @@ import (
 
 type IDiaryRepository interface {
 	FindAll() (*[]diary.Diary, error)
-	// FindByID(diaryId int) (*models.Diary, error)
+	Create(ctx context.Context, d *diary.Diary) (*diary.Diary, error)
 }
 
 type DiaryRepository struct {
@@ -33,7 +34,10 @@ func (r *DiaryRepository) FindAll() (*[]diary.Diary, error) {
 	return &diaries, nil
 }
 
-// func (r *DiaryRepository) Create(ctx context.Context, d *diary.Diary) error {
-// 	model := db.FromDomain(d)
-// 	return r.db.WithContext(ctx).Create(model).Error
-// }
+func (r *DiaryRepository) Create(ctx context.Context, d *diary.Diary) (*diary.Diary, error) {
+	model := db.FromDomain(d)
+	if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
+		return nil, err
+	}
+	return model.ToDomain(), nil
+}
